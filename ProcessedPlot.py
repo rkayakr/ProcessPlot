@@ -64,6 +64,7 @@ import datetime
 from suntime import Sun, SunTimeException
 #import subprocess
 from WWV_utility2 import time_string_to_decimals
+from Beacon import readheader
 
 '''  #uncomment for Pi
 # ~ points to users home directory - usually /home/pi/
@@ -91,6 +92,8 @@ Filenames=['a' for a in range (10)]
 Filedates=['a' for a in range (10)]
 PrFilenames=['a' for a in range (10)]
 Nodenum=['a' for a in range (10)]
+Beaconname=['a' for a in range (10)]
+beaconfreq=np.zeros(10)
 
 nfiles = 0  # holder for number of files to plot
 
@@ -109,8 +112,8 @@ while True:
     Filedates[nfiles]=temp[fdate+1:fdate+11]
     nfiles=nfiles + 1
         
-print(Filenames[0:9])
-print(Filedates[0:9])
+#print(Filenames[0:9])
+#print(Filedates[0:9])
 print('number of files',nfiles)
 if nfiles > 10 :
     print('10 file limit')
@@ -137,116 +140,16 @@ with open(PrFilenames, 'r') as dataFile:
     data = list(dataReader)
     Header = data.pop(0)
 
-    #Figure out which header format reading
-    NewHdr = 'Unknown'
-    print('Header to check=',Header)
-    # Check if First header line is of new format example
-    #,2020-05-16T00:00:00Z,N00001,EN91fh,41.3219273, -81.5047731, 284.5,Macedonia Ohio,G1,WWV5
-    if (Header[0] == "#"):
-        print('New Header String Detected')
-        # Have new header format - pull the data fields out
-        NewHdr = 'New'
-        UTCDTZ = Header[1]
-        print('\nUTCDTZ Original Header from file read = ' + UTCDTZ)
-        UTC_DT = UTCDTZ[:10] # Strip off time and ONLY keep UTC Date
-        print('\nExtracted UTC_DT only = ' + UTC_DT)
-        UTCDTZ=UTCDTZ.replace(':','') # remove the semicolons
-        print('\ncorrected UTCDTZ =', UTCDTZ)
-#        node= Header[0] = Header[2]
-        Nodenum[0]= Header[2]
-#        print('Node =', node)
-        GridSqr = Header[3]
-#        print('GridSqr =', GridSqr)
-        Lat = Header[4]
-        print('Lat =', Lat)
-        Long = Header[5]
-        print('Long =', Long)
-        Elev = Header[6]
-#        print('Elev =', Elev)
-        citystate = Header[7]
-#        print('City State =', citystate)
-        RadioID = Header[8]
-#        print('Radio ID =', RadioID)
-        beacon = Header[9]
-#        print('Beacon =', beacon)
+#    print('return',readheader(0,Header))
+    Nodenum[0], Beaconname[0], beaconfreq[0], Lat, Long = readheader(Header)
+#    print('\n returned ', Nodenum[0], Beaconname[0], beaconfreq[0], Lat, Long, '\n')
 
-
-if (NewHdr == 'Unknown'):
-    print('Unknown File header Structure - Aborting!')
-    sys.exit(0)
-
-#  assign beacon frequency
-beaconf = 0.0
-
-''' ##########################################################################
-'''
-#2.5MHz WWv
-if (beacon == 'WWV2p5'):
-    print('Final Plot for Decoded 2.5MHz WWV Beacon\n')
-    beaconlabel = 'WWV 2.5 MHz'
-    beaconf=2500000.0
-
-#5MHz WWV
-elif (beacon == 'WWV5'):
-    print('Final Plot for Decoded 5MHz WWV Beacon\n')
-    beaconlabel = 'WWV 5 MHz'
-    beaconf=5000000.0
-    
-#10MHz WWV
-elif (beacon == 'WWV10'):
-    print('Final Plot for Decoded 10MHz WWV Beacon\n')
-    beaconlabel = 'WWV 10 MHz'
-    beaconf=10000000.0
-    
-#15MHz WWV
-elif (beacon == 'WWV15'):
-    print('Final Plot for Decoded 15MHz WWV Beacon\n')
-    beaconlabel = 'WWV 15 MHz'
-    beaconf=15000000.0
-    
-#20MHz WWV
-if (beacon == 'WWV20'):
-    print('Final Plot for Decoded 20MHz WWV Beacon\n')
-    beaconlabel = 'WWV 20 MHz'
-    beaconf=20000000.0    
-
-#25MHz WWV
-elif (beacon == 'WWV25'):
-    print('Final Plot for Decoded 25MHz WWV Beacon\n')
-    beaconlabel = 'WWV 25 MHz'
-    beaconf=25000000.0    
-
-#3.33MHz CHU
-if (beacon == 'CHU3'):
-    print('Final Plot for Decoded 3.33MHz CHU Beacon\n')
-    beaconlabel = 'CHU 3.330 MHz'
-    beaconf=3330000.0    
-
-#7.85MHz CHU
-elif (beacon == 'CHU7'):
-    print('Final Plot for Decoded 7.85MHz CHU Beacon\n')
-    beaconlabel = 'CHU 7.850'
-    beaconf=7850000.0
-    
-#14.67MHz CHU
-elif (beacon == 'CHU14'):
-    print('Final Plot for Decoded 14.67MHz CHU Beacon\n')
-    beaconlabel = 'CHU 14.670 MHz'
-    beaconf=14670000.0
-    
-elif (beacon == 'Unknown'):
-    print('Final Plot for Decoded Unknown Beacon\n')
-    print('Unknown Beacon - Aborting!')
-    sys.exit(0)
-    
 ''' ###########################################################################
 '''
 print('Ready to start processing records')
 
 # Prepare data arrays
 hours=[[],[],[],[],[],[],[],[],[],[]]
-
-#Freq=[[],[],[],[],[],[],[],[],[],[]]
 Doppler=[[],[],[],[],[],[],[],[],[],[]]
 #Vpk=[[],[],[],[],[],[],[],[],[],[]]
 Power_dB=[[],[],[],[],[],[],[],[],[],[]] # will be second data set, received power 9I20
@@ -276,11 +179,11 @@ for row in data:
 #            LateHour=True # went past 23:00 hours
         if (not LateHour) or (LateHour and (decHours>23)): # Otherwise past 23:59:59.  Omit time past midnight.
             hours[0].append(decHours) # already in float because of conversion to decimal hours.
-            Doppler[0].append(float(row[1])-beaconf) # frequency offset from col 2
+            Doppler[0].append(float(row[1])-beaconfreq[0]) # frequency offset from col 2
 #            Vpk[0].append (float(row[2])) # Get Volts peak from col 3
             Power_dB[0].append (20*math.log10(float(row[2]))) # log power from col 4
 
-print('nf ',0,'len hours',len(hours[0]))
+#print('nf ',0,'len hours',len(hours[0]))
 
 ###############################################################################################
 # Find max and min of Power_dB for graph preparation:
@@ -316,6 +219,8 @@ filtPower[0] = filtfilt(b, a, Power_dB[0])
 ##################################################################################################
 # sunrise sunset times in UTC
 sun = Sun(float(Lat), float(Long))
+
+UTC_DT=Filedates[0]
 print(UTC_DT)
 SDAY=int(UTC_DT[8:10])
 SMON=int(UTC_DT[5:7])
@@ -342,7 +247,7 @@ ax.set_xticks([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
 if (PlotTarget == 'Doppler'):
     ax.plot([srx,srx],[-1,1],'y',label='sunrise',linestyle='dashed')
     ax.plot([ssx,ssx],[-1,1],'b',label='sunset',linestyle='dashed')
-    ax.plot(hours[0], filtDoppler[0], colors[0],label=Nodenum[0]+' '+Filedates[0]) # color k for black
+    ax.plot(hours[0], filtDoppler[0], colors[0],label=Beaconname[0] +' '+Nodenum[0]+' '+Filedates[0]) # color k for black
     ax.set_ylabel('Doppler shift, Hz '+ Filedates[0])
     ax.set_ylim([-1.0, 1.0]) # -1 to 1 Hz for Doppler shift
     plt.axhline(y=0, color="gray", lw=1) # plot a zero freq reference line for 0.000 Hz Doppler shift
@@ -351,7 +256,7 @@ if (PlotTarget == 'Doppler'):
 else:
     ax.plot([srx,srx],[-90,0],'y',label='sunrise',linestyle='dashed')
     ax.plot([ssx,ssx],[-90,0],'b',label='sunset',linestyle='dashed')
-    ax.plot(hours[0], filtPower[0], colors[0],label=Nodenum[0]+' '+Filedates[0]) # color k for black
+    ax.plot(hours[0], filtPower[0], colors[0],label=Beaconname[0] +' '+ Nodenum[0]+' '+Filedates[0]) # color k for black
     ax.set_ylabel('Power, dB '+ Filedates[0])
     ax.set_ylim(-90, 0)    
     
@@ -375,6 +280,9 @@ for nf in range(1, nfiles):
         Header = data.pop(0)
         Nodenum[nf]= Header[2]
     FindUTC = 0
+    
+    Nodenum[nf], Beaconname[nf], beaconfreq[nf], Lat, Long = readheader(Header)
+#    print('\n returned ', Nodenum[nf], Beaconname[nf], beaconfreq[nf], Lat, Long, '\n')
 
     for row in data:
         if (FindUTC == 0):
@@ -385,7 +293,7 @@ for nf in range(1, nfiles):
         else:
             decHours=time_string_to_decimals(row[0])
             hours[nf].append(decHours) # already in float because of conversion to decimal hours.
-            Doppler[nf].append(float(row[1])-beaconf) # frequency offset from col 2
+            Doppler[nf].append(float(row[1])-beaconfreq[nf]) # frequency offset from col 2
 #            Vpk[nf].append (float(row[2])) # Get Volts peak from col 3
 #            Power_dB[nf].append (float(row[4])) # log power from col 4    
             Power_dB[nf].append (20*math.log10(float(row[2]))) # log power
@@ -393,15 +301,10 @@ for nf in range(1, nfiles):
     filtDoppler[nf] = filtfilt(b, a, Doppler[nf])
     filtPower[nf] = filtfilt(b, a, Power_dB[nf])
 
-#    print('nf ',nf,'hours',len(hours[nf]))
-#    print('filtDoppler',len(filtDoppler[nf]))
-#    print(filtDoppler[nf][0:9])
-#    print(hours[nf][0:9])
-
     if (PlotTarget == 'Doppler'):    
-        ax.plot(hours[nf], filtDoppler[nf], colors[nf], label=Nodenum[nf]+' '+Filedates[nf]) # color k for black
+        ax.plot(hours[nf], filtDoppler[nf], colors[nf], label=Beaconname[nf] +' '+ Nodenum[nf]+' '+Filedates[nf]) # color k for black
     else:
-        ax.plot(hours[nf], filtPower[nf], colors[nf], label=Nodenum[nf]+' '+Filedates[nf]) # color k for black
+        ax.plot(hours[nf], filtPower[nf], colors[nf], label=Beaconname[nf] +' '+ Nodenum[nf]+' '+Filedates[nf]) # color k for black
 
 '''
 #############################################################################
@@ -442,15 +345,15 @@ if doavg :
 '''
 end average
 '''
-ax.legend(loc="lower right", title="Legend Title", frameon=False)
+ax.legend(loc="lower right",  frameon=False)
 
 
 # Create Plot Title
-plt.title(beaconlabel + ' Grape Data Plot')
+plt.title(' Grape Data Plot')
 #plt.title(beaconlabel + ' Grape Data Plot\nNode:  ' + node + '     Gridsquare:  '+ GridSqr + '\nLat= ' + Lat + '    Long= ' + Long + '    Elev= ' + Elev + ' M\n' )
 # Create Plot File Nam
 #GraphFile = yesterdaystr + '_' + node + '_' + RadioID + '_' + GridSqr + '_' + beacon + '_graph.png'
-GraphFile = 'multi'+ PlotTarget +  beacon + '.png'
+GraphFile = 'multi'+ PlotTarget + '.png'
 PlotGraphFile = PlotDir + GraphFile
 
 # create plot
