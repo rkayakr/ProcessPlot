@@ -1,5 +1,6 @@
 # ProcessPolt
 plots processed files
+Bob Benedict, KD8CGH, 8/12/2021
 
 version 1.0
 plots multiple files from one or more nodes, dates and beacons
@@ -10,8 +11,6 @@ expects a homepath directory with raw files in subdirs, leaves plot in Mplot dir
 
 windows version hardcoded homepath directory location
 for Pi comment out windows homepath and uncomment Pi homepath lines
-
-Bob Benedict, KD8CGH, 8/12/2021
 
 create text file "plotfiles.txt" in homepath directory
   keyword ('Doppler' or 'Power')
