@@ -27,6 +27,7 @@ loads file names in list
 plots first file and create axis and title info
 plots rest in loop as curves on first plot
 calculates average and plots
+includes sunrise, sunset times requested by Kristina Collins
 leaves plotfile in Mplot directory
 
 uses WWV_utility2.py
