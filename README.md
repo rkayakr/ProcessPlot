@@ -1,4 +1,4 @@
-# ProcessPolt
+# ProcessPlot
 plots processed files
 Bob Benedict, KD8CGH, 8/12/2021
 
