@@ -1,5 +1,5 @@
 # ProcessPlot
-plots processed files
+plots processed PSWS files
 Bob Benedict, KD8CGH, 8/12/2021
 
 version 1.0
