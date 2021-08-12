@@ -61,7 +61,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import filtfilt, butter
 import datetime  
-from suntime import Sun, SunTimeException
+from suntime import Sun
 #import subprocess
 from WWV_utility2 import time_string_to_decimals
 from Beacon import readheader
@@ -90,7 +90,7 @@ else:
 
 Filenames=['a' for a in range (10)]
 Filedates=['a' for a in range (10)]
-PrFilenames=['a' for a in range (10)]
+#PrFilenames=['a' for a in range (10)]
 Nodenum=['a' for a in range (10)]
 Beaconname=['a' for a in range (10)]
 beaconfreq=np.zeros(10)
