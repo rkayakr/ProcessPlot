@@ -1,27 +1,28 @@
 # ProcessPolt
 plots processed files
-# ProcessedPlot
-multiPlot version 1.2 cleans up to make Pi and Windows use easier
-multiPlot version 1.1 adds sunrise sunset times for location of lat long in first file
-requires suntime library https://github.com/SatAgro/suntime
-multiPlot version v1.0 plots up to 10 PSWS "rawdata" files and average value
+
+version 1.0
+plots multiple files from one or more nodes, dates and beacons
+
 modified from WWV_plt2.py @authors dkazdan jgibbons
+
 expects a homepath directory with raw files in subdirs, leaves plot in Mplot directory
-plots files from multiple subdir to compare node results
-plot title from first file
 
 windows version hardcoded homepath directory location
-for Pi comment out windows homepath and uncomment Pi lines
+for Pi comment out windows homepath and uncomment Pi homepath lines
 
-uses WWV_utility2.py
-Bob Benedict, KD8CGH, 7/29/2021
+Bob Benedict, KD8CGH, 8/12/2021
 
 create text file "plotfiles.txt" in homepath directory
   keyword ('Doppler' or 'Power')
+  keyword ('Average' or 'No Average')
   subdir/filename1 
   subdir/filename2
+  filename3
   ...
+
 if found 'Doppler' will plot Doppler shifts, else will plot Power
+if found 'Average' will plot average of dada
 loads file names in list
 plots first file and create axis and title info
 plots rest in loop as curves on first plot
@@ -34,3 +35,5 @@ WWV utility file
 Routines and classes used in WWV file management and graphing
 David Kazdan, AD8Y
 John Gibbons, N8OBJ - mods to plot header 2/3/2020
+
+uses Beacon.py to read headers
