@@ -3,7 +3,7 @@ plots processed PSWS files
 Bob Benedict, KD8CGH, 8/12/2021
 
 version 1.0
-plots multiple files from one or more nodes, dates and beacons
+plots up to 10 files from one or more nodes, dates and beacons
 
 modified from WWV_plt2.py @authors dkazdan jgibbons
 
