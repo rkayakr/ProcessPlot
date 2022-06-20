@@ -12,13 +12,20 @@ expects a homepath directory with raw files in subdirs, leaves plot in Mplot dir
 windows version hardcoded homepath directory location
 for Pi comment out windows homepath and uncomment Pi homepath lines
 
-create text file "plotfiles.txt" in homepath directory
+create text file "Processfiles.txt" in homepath directory
   keyword ('Doppler' or 'Power')
   keyword ('Average' or 'No Average')
   subdir/filename1 
   subdir/filename2
   filename3
   ...
+  
+example Processfiles.txt data:
+Power
+No Average
+Sxfer/2021-10-31T000000Z_N0000022_G1_EN91he_FRQ_WWV10.csv
+Sxfer/2022-01-01T000000Z_N0000022_G1_EN91he_FRQ_WWV10.csv
+Sxfer/2022-01-18T000000Z_N0000022_G1_EN91he_FRQ_WWV10.csv
 
 if found 'Doppler' will plot Doppler shifts, else will plot Power
 if found 'Average' will plot average of dada
